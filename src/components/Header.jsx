@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { NavLink, Link, useNavigate } from 'react-router-dom'
 import { getToken, logout } from '../api/client'
 
 export default function Header() {
@@ -11,22 +11,27 @@ export default function Header() {
     navigate('/login', { replace: true })
   }
 
+  const navLinkClass = ({ isActive }) => `nav-link app-nav-link ${isActive ? 'active' : ''}`
+
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav className="navbar navbar-expand-lg app-header navbar-dark sticky-top shadow-sm">
       <div className="container">
-        <Link className="navbar-brand" to="/">Team Manager</Link>
+        <Link className="navbar-brand d-flex align-items-center gap-2" to="/">
+          <span className="brand-dot" />
+          <span className="fw-bold">Team Manager</span>
+        </Link>
         <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
           <span className="navbar-toggler-icon"></span>
         </button>
         <div className="collapse navbar-collapse" id="navbarContent">
           <ul className="navbar-nav me-auto">
             <li className="nav-item">
-              <Link className="nav-link" to="/projects">Projects</Link>
+              <NavLink to="/projects" className={navLinkClass}>Projects</NavLink>
             </li>
           </ul>
           <div className="d-flex">
             {token ? (
-              <button className="btn btn-outline-light btn-sm" onClick={handleLogout}>Đăng xuất</button>
+              <button className="btn btn-outline-light btn-sm app-logout" onClick={handleLogout}>Đăng xuất</button>
             ) : (
               <Link className="btn btn-outline-light btn-sm" to="/login">Đăng nhập</Link>
             )}
