@@ -6,6 +6,9 @@
   --primary: #3b82f6;
   --danger: #ef4444;
   --border: #1f2937;
+  --accent-1: #7c3aed; /* purple */
+  --accent-2: #06b6d4; /* cyan */
+  --accent-3: #22c55e; /* green */
 }
 * { box-sizing: border-box; }
 html, body, #root { height: 100%; }
@@ -84,3 +87,98 @@ body {
   box-shadow: 0 10px 30px rgba(0,0,0,0.4);
   z-index: 50;
 }
+
+/* ---------- Auth (Login/Register) ---------- */
+.auth-layout {
+  min-height: calc(100vh - 0px);
+  padding: 32px 16px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 980px;
+  background: #ffffff10; /* subtle overlay on dark bg */
+  border: 1px solid #ffffff1a;
+  border-radius: 16px;
+  backdrop-filter: blur(6px);
+}
+
+.gradient-side {
+  background: linear-gradient(135deg, #1e40af, #4338ca, #6d28d9);
+}
+
+.logo-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  box-shadow: 0 0 0 3px #dcfce7;
+}
+
+/* Improve default buttons contrast on dark background */
+.btn-primary {
+  background-color: #2563eb;
+  border-color: #1d4ed8;
+}
+.btn-primary:hover {
+  filter: brightness(1.05);
+}
+
+/* ---------- Projects Page ---------- */
+.projects-page .hero {
+  background: linear-gradient(135deg, rgba(124,58,237,0.08), rgba(6,182,212,0.08));
+  border: 1px solid #ffffff1a !important;
+  position: relative;
+  overflow: hidden;
+}
+.projects-page .hero::after {
+  content: '';
+  position: absolute;
+  inset: -40%;
+  background: radial-gradient(600px 240px at 10% 20%, rgba(124,58,237,0.15), transparent 60%),
+              radial-gradient(600px 240px at 90% 10%, rgba(6,182,212,0.18), transparent 60%);
+  pointer-events: none;
+}
+
+.projects-page .project-card {
+  border-radius: 16px;
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  border: 1px solid #e5e7eb;
+}
+.projects-page .project-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 40px rgba(0,0,0,.12);
+  border-color: rgba(124,58,237,0.35);
+}
+.projects-page .project-card .card-title {
+  font-weight: 700;
+}
+.projects-page .project-card .badge {
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  color: #fff;
+  border: none;
+}
+
+.projects-page .form-control:focus {
+  border-color: rgba(124,58,237,.6);
+  box-shadow: 0 0 0 .25rem rgba(124,58,237,.15);
+}
+
+.projects-page .btn-outline-primary {
+  --bs-btn-color: #4f46e5;
+  --bs-btn-border-color: #6366f1;
+  --bs-btn-hover-bg: #4f46e5;
+  --bs-btn-hover-border-color: #4f46e5;
+  --bs-btn-hover-color: #fff;
+}
+
+.projects-page .btn-primary {
+  background: linear-gradient(135deg, #4f46e5, #0ea5e9);
+  border: none;
+  box-shadow: 0 8px 20px rgba(79,70,229,.25);
+}
+.projects-page .btn-primary:hover { filter: brightness(1.03); }
+
+.projects-page .card-title { letter-spacing: .2px; }
+.projects-page .text-muted { color: #6b7280 !important; }
