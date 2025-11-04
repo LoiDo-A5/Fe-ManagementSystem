@@ -197,6 +197,16 @@ body {
   color: #0f172a;
 }
 
+/* App shell to keep footer at the bottom */
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.app-shell > .container {
+  flex: 1 0 auto;
+}
+
 .container {
   max-width: 720px;
   margin: 40px auto;

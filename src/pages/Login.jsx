@@ -8,6 +8,7 @@ export default function Login() {
   const [name, setName] = useState('')
   const [isRegister, setIsRegister] = useState(false)
   const [error, setError] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -57,7 +58,24 @@ export default function Login() {
               </div>
               <div className="mb-2">
                 <label className="form-label">Mật khẩu</label>
-                <input type="password" className="form-control form-control-lg" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••••" />
+                <div className="input-group">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    className="form-control form-control-lg"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    placeholder="••••••••"
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary"
+                    onClick={() => setShowPassword(v => !v)}
+                    aria-label="Hiện/Ẩn mật khẩu"
+                  >
+                    <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
+                  </button>
+                </div>
               </div>
               <div className="d-flex justify-content-between align-items-center mb-4">
                 <div className="form-check">
