@@ -152,6 +152,27 @@ export default function ProjectDetail() {
     return uu.getTime() !== cu.getTime()
   }
 
+  // Priority helpers (scoped usage in title only)
+  function priorityText(p) {
+    if (!p) return ''
+    const map = { low: 'Thấp', medium: 'Trung bình', high: 'Cao' }
+    return map[p] || p
+  }
+
+  // Format JS/ISO date to input[type="datetime-local"] value
+  function toInputDateTime(dateStr) {
+    if (!dateStr) return ''
+    const d = new Date(dateStr)
+    if (isNaN(d)) return ''
+    const pad = (n) => String(n).padStart(2, '0')
+    const yyyy = d.getFullYear()
+    const mm = pad(d.getMonth() + 1)
+    const dd = pad(d.getDate())
+    const hh = pad(d.getHours())
+    const mi = pad(d.getMinutes())
+    return `${yyyy}-${mm}-${dd}T${hh}:${mi}`
+  }
+
   // --- Lists (Columns) ---
   async function seedDefaultLists() {
     try {
@@ -273,6 +294,8 @@ export default function ProjectDetail() {
     try {
       const { data } = await api.put(`/api/projects/tasks/${taskId}`, patch)
       setTasks(prev => prev.map(t => t.id === taskId ? data : t))
+      // Keep modal state in sync if currently viewing this task
+      setActiveTask(prev => (prev && prev.id === taskId) ? { ...prev, ...data } : prev)
     } catch (err) {
       show(err.response?.data?.error || 'Không cập nhật được task')
     }
@@ -656,7 +679,12 @@ export default function ProjectDetail() {
                   {(tasksByList['none'] || []).map(t => (
                     <div key={t.id} className="p-2 border rounded d-flex justify-content-between align-items-center task-item">
                       <div className="me-2">
-                        <div className="fw-semibold">{t.title}</div>
+                        {t.priority && (
+                          <div className="pms-task-meta">
+                            <span className={`pms-priority-badge pms-${t.priority}`}>{priorityText(t.priority)}</span>
+                          </div>
+                        )}
+                        <div className="fw-semibold text-truncate" style={{maxWidth: '100%'}}>{t.title}</div>
                         {t.description && <div className="text-muted small">{t.description}</div>}
                         <button className="btn btn-link btn-sm p-0" onClick={() => openTaskDetail(t)}>Bình luận/Tệp</button>
                       </div>
@@ -688,7 +716,12 @@ export default function ProjectDetail() {
                     {(tasksByList[list.id] || []).map(t => (
                       <div key={t.id} className="p-2 border rounded d-flex justify-content-between align-items-center task-item">
                         <div className="me-2">
-                          <div className="fw-semibold">{t.title}</div>
+                          {t.priority && (
+                            <div className="pms-task-meta">
+                              <span className={`pms-priority-badge pms-${t.priority}`}>{priorityText(t.priority)}</span>
+                            </div>
+                          )}
+                          <div className="fw-semibold text-truncate" style={{maxWidth: '100%'}}>{t.title}</div>
                           {t.description && <div className="text-muted small">{t.description}</div>}
                           <button className="btn btn-link btn-sm p-0" onClick={() => openTaskDetail(t)}>Bình luận/Tệp</button>
                         </div>
@@ -910,7 +943,15 @@ export default function ProjectDetail() {
                   <h6>Thuộc tính</h6>
                   <div className="mb-3">
                     <label className="form-label">Độ ưu tiên</label>
-                    <select className="form-select" defaultValue={activeTask?.priority || 'medium'} onChange={(e) => updateTask(activeTask.id, { priority: e.target.value })}>
+                    <select
+                      className="form-select"
+                      value={activeTask?.priority || 'medium'}
+                      onChange={(e) => {
+                        const val = e.target.value
+                        setActiveTask(prev => prev ? { ...prev, priority: val } : prev)
+                        updateTask(activeTask.id, { priority: val })
+                      }}
+                    >
                       <option value="low">Thấp</option>
                       <option value="medium">Trung bình</option>
                       <option value="high">Cao</option>
@@ -918,11 +959,29 @@ export default function ProjectDetail() {
                   </div>
                   <div className="mb-3">
                     <label className="form-label">Hạn chót</label>
-                    <input type="datetime-local" className="form-control" onChange={(e) => updateTask(activeTask.id, { due_date: e.target.value })} />
+                    <input
+                      type="datetime-local"
+                      className="form-control"
+                      value={toInputDateTime(activeTask?.due_date)}
+                      onChange={(e) => {
+                        const v = e.target.value || null
+                        setActiveTask(prev => prev ? { ...prev, due_date: v } : prev)
+                        updateTask(activeTask.id, { due_date: v })
+                      }}
+                    />
                   </div>
                   <div className="mb-3">
                     <label className="form-label">Nhắc việc</label>
-                    <input type="datetime-local" className="form-control" onChange={(e) => updateTask(activeTask.id, { reminder_at: e.target.value })} />
+                    <input
+                      type="datetime-local"
+                      className="form-control"
+                      value={toInputDateTime(activeTask?.reminder_at)}
+                      onChange={(e) => {
+                        const v = e.target.value || null
+                        setActiveTask(prev => prev ? { ...prev, reminder_at: v } : prev)
+                        updateTask(activeTask.id, { reminder_at: v })
+                      }}
+                    />
                   </div>
 
                   <h6 className="mt-4">Nhãn</h6>

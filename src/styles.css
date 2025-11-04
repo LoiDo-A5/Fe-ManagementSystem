@@ -515,3 +515,40 @@ body {
 #taskModal .modal-footer {
   border-top: 1px solid #eef2ff;
 }
+
+/* ---------- Scoped Task Priority (does not affect existing UI) ---------- */
+.pms-priority-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  border: 1px solid transparent;
+}
+.pms-task-meta {
+  margin-bottom: 4px;
+}
+.task-item .text-truncate {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pms-low {
+  background: #e6f6ff; /* light blue */
+  color: #075985;
+  border-color: #bae6fd;
+}
+.pms-medium {
+  background: #fff7cd; /* light yellow */
+  color: #92400e;
+  border-color: #fde68a;
+}
+.pms-high {
+  background: #ffe4e6; /* light red */
+  color: #7f1d1d;
+  border-color: #fecdd3;
+}
