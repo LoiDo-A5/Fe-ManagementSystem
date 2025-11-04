@@ -397,3 +397,121 @@ body {
   --bs-btn-hover-bg: rgba(255,255,255,.15);
   --bs-btn-hover-border-color: rgba(255,255,255,.75);
 }
+
+/* ---------- Task Detail Modal ---------- */
+#taskModal .modal-dialog {
+  max-width: 980px;
+}
+
+#taskModal .modal-content {
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 16px 50px rgba(79,70,229,0.22);
+}
+
+#taskModal .modal-header {
+  background: linear-gradient(135deg, rgba(79,70,229,.08), rgba(14,165,233,.08));
+  border-bottom: 1px solid #eef2ff;
+}
+
+#taskModal .modal-title {
+  font-weight: 700;
+  letter-spacing: .2px;
+}
+
+#taskModal .modal-body {
+  padding-top: 18px;
+}
+
+#taskModal h6 {
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: .75rem;
+}
+
+#taskModal .form-label {
+  font-weight: 600;
+}
+
+/* Comments list panel (left) */
+#taskModal .modal-body .vstack.gap-3 > .border.rounded.p-3 {
+  background: #ffffff;
+  border-color: #e5e7eb !important;
+  box-shadow: 0 4px 14px rgba(0,0,0,.05);
+}
+
+#taskModal .avatar-sm {
+  width: 36px;
+  height: 36px;
+  font-size: 14px;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,.08);
+}
+
+#taskModal .btn-group.btn-group-sm .btn {
+  --bs-btn-color: #374151;
+  --bs-btn-border-color: #d1d5db;
+  --bs-btn-hover-bg: #f3f4f6;
+  --bs-btn-hover-border-color: #cbd5e1;
+}
+
+/* Make edit/delete icons clearer */
+#taskModal .btn-group.btn-group-sm .btn .bi {
+  font-size: 1.05rem;
+  line-height: 1;
+}
+#taskModal .btn-group.btn-group-sm .btn.btn-outline-secondary .bi {
+  color: #374151;
+}
+#taskModal .btn-group.btn-group-sm .btn.btn-outline-secondary:hover .bi {
+  color: #111827;
+}
+#taskModal .btn-group.btn-group-sm .btn.btn-outline-danger .bi {
+  color: #b91c1c;
+}
+#taskModal .btn-group.btn-group-sm .btn.btn-outline-danger:hover .bi {
+  color: #991b1b;
+}
+
+/* TaskComments delete icon button (link style) */
+#taskModal .btn.btn-link.text-danger .bi {
+  font-size: 1.05rem;
+}
+#taskModal .btn.btn-link.text-danger:hover {
+  text-decoration: none;
+}
+
+/* New comment input */
+#taskModal form.d-flex.gap-2 .form-control {
+  border-radius: 999px;
+  padding-inline: 16px;
+}
+#taskModal form.d-flex.gap-2 .btn.btn-primary {
+  border-radius: 999px;
+  padding-inline: 18px;
+}
+
+/* Properties panel (right) */
+#taskModal .col-12.col-md-5 .form-control,
+#taskModal .col-12.col-md-5 .form-select {
+  border-color: #e5e7eb;
+}
+#taskModal .col-12.col-md-5 .form-control:focus,
+#taskModal .col-12.col-md-5 .form-select:focus {
+  border-color: rgba(124,58,237,.6);
+  box-shadow: 0 0 0 .25rem rgba(124,58,237,.15);
+}
+
+#taskModal .badge {
+  border: none;
+}
+
+#taskModal .d-flex.align-items-center.p-2.border.rounded,
+#taskModal .d-flex.justify-content-between.align-items-center.p-2.border.rounded {
+  background: #ffffff;
+  border-color: #e5e7eb !important;
+}
+
+#taskModal .modal-footer {
+  border-top: 1px solid #eef2ff;
+}
