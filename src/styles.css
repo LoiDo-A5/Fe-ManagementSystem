@@ -76,6 +76,33 @@
   align-self: flex-start;
 }
 
+/* Drag & Drop visuals */
+.task-item[draggable="true"] {
+  cursor: grab;
+}
+.task-item.dragging {
+  opacity: .6;
+  border-style: dashed;
+}
+.drop-zone.drag-over {
+  outline: 2px dashed #6366f1;
+  outline-offset: 4px;
+  background: rgba(99,102,241,0.06);
+  border-radius: 8px;
+}
+
+/* Ensure drop area is usable even when empty */
+.drop-zone {
+  min-height: 48px;
+  padding: 4px;
+  border-radius: 8px;
+}
+.drop-zone:empty::before {
+  content: '';
+  display: block;
+  min-height: 32px;
+}
+
 /* ---------- Header & Footer ---------- */
 .app-header {
   background: linear-gradient(135deg, rgba(79,70,229,0.92), rgba(14,165,233,0.88));

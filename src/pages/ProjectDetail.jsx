@@ -30,6 +30,42 @@ export default function ProjectDetail() {
   const modalRef = useRef(null)
   const modalInstance = useRef(null)
 
+  // Drag & Drop state
+  const [dragTaskId, setDragTaskId] = useState(null)
+  const [dragOverListId, setDragOverListId] = useState(null) // number | 'none' | null
+
+  function handleDragStart(e, task) {
+    try {
+      setDragTaskId(task.id)
+      e.dataTransfer.setData('text/plain', String(task.id))
+      e.dataTransfer.effectAllowed = 'move'
+    } catch {}
+  }
+
+  function handleDragEnd() {
+    setDragTaskId(null)
+    setDragOverListId(null)
+  }
+
+  function handleDragOver(e, listIdKey) {
+    e.preventDefault()
+    try { e.dataTransfer.dropEffect = 'move' } catch {}
+    setDragOverListId(listIdKey)
+  }
+
+  async function handleDrop(e, targetListId) {
+    e.preventDefault()
+    try {
+      const raw = e.dataTransfer.getData('text/plain')
+      const taskId = Number(raw || dragTaskId)
+      if (!taskId) return
+      await updateTask(taskId, { list_id: targetListId })
+    } finally {
+      setDragTaskId(null)
+      setDragOverListId(null)
+    }
+  }
+
   // Fallback modal helpers (no Bootstrap JS)
   function showModalFallback() {
     const el = document.getElementById('taskModal')
@@ -677,9 +713,19 @@ export default function ProjectDetail() {
                   <h6 className="mb-0">{tr('section.noColumn')}</h6>
                   <span className="badge text-bg-light">{tasksByList['none']?.length || 0}</span>
                 </div>
-                <div className="vstack gap-2">
+                <div
+                  className={`vstack gap-2 drop-zone ${dragOverListId === 'none' ? 'drag-over' : ''}`}
+                  onDragOver={(e) => handleDragOver(e, 'none')}
+                  onDrop={(e) => handleDrop(e, null)}
+                >
                   {(tasksByList['none'] || []).map(t => (
-                    <div key={t.id} className="p-2 border rounded task-item">
+                    <div
+                      key={t.id}
+                      className={`p-2 border rounded task-item ${dragTaskId === t.id ? 'dragging' : ''}`}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, t)}
+                      onDragEnd={handleDragEnd}
+                    >
                       <div className="me-2">
                         {t.priority && (
                           <div className="pms-task-meta">
@@ -715,9 +761,19 @@ export default function ProjectDetail() {
                     <h6 className="mb-0">{list.title}</h6>
                     <span className="badge text-bg-light">{(tasksByList[list.id] || []).length}</span>
                   </div>
-                  <div className="vstack gap-2">
+                  <div
+                    className={`vstack gap-2 drop-zone ${dragOverListId === list.id ? 'drag-over' : ''}`}
+                    onDragOver={(e) => handleDragOver(e, list.id)}
+                    onDrop={(e) => handleDrop(e, list.id)}
+                  >
                     {(tasksByList[list.id] || []).map(t => (
-                      <div key={t.id} className="p-2 border rounded task-item">
+                      <div
+                        key={t.id}
+                        className={`p-2 border rounded task-item ${dragTaskId === t.id ? 'dragging' : ''}`}
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, t)}
+                        onDragEnd={handleDragEnd}
+                      >
                         <div className="me-2">
                           {t.priority && (
                             <div className="pms-task-meta">
