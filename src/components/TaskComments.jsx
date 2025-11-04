@@ -57,7 +57,10 @@ export default function TaskComments({ taskId, isVisible }) {
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleString('vi-VN', {
+    if (!dateString) return '—';
+    const d = new Date(dateString);
+    if (isNaN(d)) return '—';
+    return d.toLocaleString('vi-VN', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',

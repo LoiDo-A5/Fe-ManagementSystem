@@ -130,6 +130,28 @@ export default function ProjectDetail() {
     return src.slice(0, 2).toUpperCase()
   }
 
+  // Safe date formatter for Vietnamese locale
+  function formatDateVI(dateStr) {
+    if (!dateStr) return '—'
+    const d = new Date(dateStr)
+    if (isNaN(d)) return '—'
+    return d.toLocaleString('vi-VN', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  }
+
+  function isEditedComment(c) {
+    if (!c || !c.updated_at || !c.created_at) return false
+    const cu = new Date(c.created_at)
+    const uu = new Date(c.updated_at)
+    if (isNaN(cu) || isNaN(uu)) return false
+    return uu.getTime() !== cu.getTime()
+  }
+
   // --- Lists (Columns) ---
   async function seedDefaultLists() {
     try {
@@ -819,14 +841,8 @@ export default function ProjectDetail() {
                             <div>
                               <div className="fw-semibold">{c.user?.name || 'Người dùng'}</div>
                               <div className="text-muted small">
-                                {new Date(c.updated_at).toLocaleString('vi-VN', {
-                                  day: '2-digit',
-                                  month: '2-digit',
-                                  year: 'numeric',
-                                  hour: '2-digit',
-                                  minute: '2-digit'
-                                })}
-                                {c.created_at !== c.updated_at && ' (đã chỉnh sửa)'}
+                                {formatDateVI(c.updated_at || c.created_at)}
+                                {isEditedComment(c) && ' (đã chỉnh sửa)'}
                               </div>
                             </div>
                           </div>
