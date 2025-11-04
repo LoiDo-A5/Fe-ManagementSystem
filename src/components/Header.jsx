@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { NavLink, Link, useNavigate } from 'react-router-dom'
 import api, { getToken, getCurrentUser, logout } from '../api/client'
+import { useI18n } from '../i18n'
 
 export default function Header() {
   const navigate = useNavigate()
@@ -8,6 +9,7 @@ export default function Header() {
   const [user, setUser] = useState(getCurrentUser())
   const [open, setOpen] = useState(false)
   const menuRef = useRef(null)
+  const { lang, setLang, t } = useI18n()
 
   function handleLogout() {
     logout()
@@ -61,10 +63,16 @@ export default function Header() {
         <div className="collapse navbar-collapse" id="navbarContent">
           <ul className="navbar-nav me-auto">
             <li className="nav-item">
-              <NavLink to="/projects" className={navLinkClass}>Projects</NavLink>
+              <NavLink to="/projects" className={navLinkClass}>{t('nav.projects')}</NavLink>
             </li>
           </ul>
-          <div className="d-flex">
+          <div className="d-flex align-items-center gap-2">
+            {/* Language switcher */}
+            <div className="btn-group" role="group" aria-label="Language selector">
+              <button type="button" className={`btn btn-sm ${lang === 'vi' ? 'btn-light' : 'btn-outline-light'}`} onClick={() => setLang('vi')}>VI</button>
+              <button type="button" className={`btn btn-sm ${lang === 'en' ? 'btn-light' : 'btn-outline-light'}`} onClick={() => setLang('en')}>EN</button>
+            </div>
+
             {token ? (
               <div className="position-relative" ref={menuRef}>
                 <button
@@ -87,13 +95,13 @@ export default function Header() {
                   <i className="bi bi-caret-down-fill"></i>
                 </button>
                 <ul className={`dropdown-menu dropdown-menu-end ${open ? 'show' : ''}`} style={{ right: 0, left: 'auto' }}>
-                  <li><button className="dropdown-item" type="button" onClick={() => { setOpen(false); handleProfile() }}>Cập nhật hồ sơ</button></li>
+                  <li><button className="dropdown-item" type="button" onClick={() => { setOpen(false); handleProfile() }}>{t('nav.updateProfile')}</button></li>
                   <li><hr className="dropdown-divider" /></li>
-                  <li><button className="dropdown-item text-danger" type="button" onClick={handleLogout}>Đăng xuất</button></li>
+                  <li><button className="dropdown-item text-danger" type="button" onClick={handleLogout}>{t('nav.logout')}</button></li>
                 </ul>
               </div>
             ) : (
-              <Link className="btn btn-outline-light btn-sm" to="/login">Đăng nhập</Link>
+              <Link className="btn btn-outline-light btn-sm" to="/login">{t('nav.login')}</Link>
             )}
           </div>
         </div>

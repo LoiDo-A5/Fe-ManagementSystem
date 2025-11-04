@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import api from '../api/client'
 import { Link } from 'react-router-dom'
+import { useI18n } from '../i18n'
 
 export default function Projects() {
   const [projects, setProjects] = useState([])
@@ -9,6 +10,7 @@ export default function Projects() {
   const [query, setQuery] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const { t } = useI18n()
 
   async function load() {
     try {
@@ -53,12 +55,12 @@ export default function Projects() {
       <div className="hero bg-light rounded-4 p-4 p-md-5 mb-4 border">
         <div className="d-flex flex-column flex-md-row align-items-md-end justify-content-between gap-3">
           <div>
-            <h2 className="mb-1">Dự án của tôi</h2>
-            <div className="text-muted">Quản lý các dự án và nhiệm vụ trong nhóm của bạn</div>
+            <h2 className="mb-1">{t('projects.title')}</h2>
+            <div className="text-muted">{t('projects.subtitle')}</div>
           </div>
           <div className="d-flex gap-2 align-items-center w-100 w-md-auto">
-            <input className="form-control form-control-lg" placeholder="Tìm theo tên, mô tả, chủ sở hữu hoặc #id" value={query} onChange={(e) => setQuery(e.target.value)} />
-            <button className="btn btn-outline-secondary btn-lg" onClick={load} disabled={loading}>{loading ? 'Đang tải...' : 'Tải lại'}</button>
+            <input className="form-control form-control-lg" placeholder={t('projects.searchPlaceholder')} value={query} onChange={(e) => setQuery(e.target.value)} />
+            <button className="btn btn-outline-secondary btn-lg" onClick={load} disabled={loading}>{loading ? t('common.loading') : t('common.reload')}</button>
           </div>
         </div>
       </div>
@@ -67,19 +69,19 @@ export default function Projects() {
         <div className="col-12 col-lg-4">
           <div className="card shadow-sm border-0 h-100 create-project-card">
             <div className="card-body">
-              <h5 className="card-title">Tạo Project</h5>
-              <div className="text-muted small mb-3">Đặt tên rõ ràng để cả team dễ hiểu</div>
+              <h5 className="card-title">{t('projects.createTitle')}</h5>
+              <div className="text-muted small mb-3">{t('projects.createHint')}</div>
               {error && <div className="alert alert-danger">{error}</div>}
               <form onSubmit={createProject}>
                 <div className="mb-3">
-                  <label className="form-label">Tên</label>
-                  <input className="form-control form-control-lg" value={name} onChange={e => setName(e.target.value)} required placeholder="Ví dụ: Website Marketing 2025" />
+                  <label className="form-label">{t('common.name')}</label>
+                  <input className="form-control form-control-lg" value={name} onChange={e => setName(e.target.value)} required placeholder={t('projects.namePlaceholder')} />
                 </div>
                 <div className="mb-3">
-                  <label className="form-label">Mô tả</label>
-                  <textarea className="form-control" rows="4" value={description} onChange={e => setDescription(e.target.value)} placeholder="Mục tiêu, phạm vi, deadline..." />
+                  <label className="form-label">{t('common.description')}</label>
+                  <textarea className="form-control" rows="4" value={description} onChange={e => setDescription(e.target.value)} placeholder={t('projects.descriptionPlaceholder')} />
                 </div>
-                <button className="btn btn-primary w-100" type="submit">Tạo dự án</button>
+                <button className="btn btn-primary w-100" type="submit">{t('projects.createButton')}</button>
               </form>
             </div>
           </div>
@@ -95,10 +97,10 @@ export default function Projects() {
                       <span className="badge text-bg-light">#{p.id}</span>
                     </div>
                     {p.description && <p className="card-text text-muted flex-grow-1">{p.description}</p>}
-                    {p.owner && <div className="small text-muted">Chủ sở hữu: <span className="fw-semibold">{p.owner.name}</span> ({p.owner.email})</div>}
+                    {p.owner && <div className="small text-muted">{t('projects.owner')} <span className="fw-semibold">{p.owner.name}</span> ({p.owner.email})</div>}
                   </div>
                   <div className="card-footer bg-transparent border-0 pt-0 pb-3 px-3">
-                    <Link to={`/projects/${p.id}`} className="btn btn-outline-primary w-100">Mở dự án</Link>
+                    <Link to={`/projects/${p.id}`} className="btn btn-outline-primary w-100">{t('projects.open')}</Link>
                   </div>
                 </div>
               </div>
@@ -106,8 +108,8 @@ export default function Projects() {
           </div>
           {filtered.length === 0 && !loading && (
             <div className="text-center text-muted py-5">
-              <div className="mb-2">Không tìm thấy dự án phù hợp</div>
-              <div className="small">Hãy thử từ khoá khác hoặc tạo dự án mới</div>
+              <div className="mb-2">{t('projects.emptyTitle')}</div>
+              <div className="small">{t('projects.emptySubtitle')}</div>
             </div>
           )}
         </div>

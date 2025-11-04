@@ -54,6 +54,28 @@
   background: #ffffffaa;
 }
 
+/* Make task content a vertical stack so the comment/files link can sit at the bottom */
+.task-item > .me-2 {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Top actions row (select column + delete) */
+.task-actions-top .task-select {
+  max-width: 160px;
+}
+@media (max-width: 1200px) {
+  .task-actions-top .task-select { max-width: 140px; }
+}
+.task-actions-top .btn { white-space: nowrap; }
+
+/* Push the comment/files link to the bottom of the card content */
+.task-comment-link {
+  margin-top: auto;
+  align-self: flex-start;
+}
+
 /* ---------- Header & Footer ---------- */
 .app-header {
   background: linear-gradient(135deg, rgba(79,70,229,0.92), rgba(14,165,233,0.88));

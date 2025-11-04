@@ -2,11 +2,13 @@ import React, { useEffect, useMemo, useState, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import api, { getCurrentUser } from '../api/client'
 import { useToast } from '../components/ToastProvider.jsx'
+import { useI18n } from '../i18n'
 
 export default function ProjectDetail() {
   const { id } = useParams()
   const projectId = Number(id)
   const { show } = useToast()
+  const { t: tr } = useI18n()
 
   const [project, setProject] = useState(null)
   const [lists, setLists] = useState([])
@@ -586,7 +588,7 @@ export default function ProjectDetail() {
         <div className="d-flex align-items-center justify-content-between mb-3">
           <h3 className="mb-0">Project #{projectId}</h3>
           <button className="btn btn-outline-secondary" onClick={load} disabled={loading}>
-            {loading ? 'Đang tải...' : 'Tải lại'}
+            {loading ? tr('common.loading') : tr('project.reload')}
           </button>
         </div>
         {error && <div className="alert alert-danger">{error}</div>}
@@ -605,24 +607,24 @@ export default function ProjectDetail() {
         <div className="card mb-3">
           <div className="card-body">
             <div className="d-flex justify-content-between align-items-center mb-2">
-              <h5 className="card-title mb-0">Cài đặt bảng</h5>
+              <h5 className="card-title mb-0">{tr('project.settings')}</h5>
               {settings?.archived_at ? (
-                <button className="btn btn-sm btn-success" onClick={unarchiveProjectFE}>Unarchive</button>
+                <button className="btn btn-sm btn-success" onClick={unarchiveProjectFE}>{tr('project.unarchive')}</button>
               ) : (
-                <button className="btn btn-sm btn-outline-warning" onClick={archiveProjectFE}>Archive</button>
+                <button className="btn btn-sm btn-outline-warning" onClick={archiveProjectFE}>{tr('project.archive')}</button>
               )}
             </div>
             <form onSubmit={saveSettings} className="row g-2">
               <div className="col-md-3">
-                <label className="form-label">Màu tiêu đề</label>
+                <label className="form-label">{tr('project.titleColor')}</label>
                 <input className="form-control" placeholder="#4f46e5" value={settings.color || ''} onChange={e => setSettings(prev => ({ ...prev, color: e.target.value }))} />
               </div>
               <div className="col-md-7">
-                <label className="form-label">Ảnh nền (URL)</label>
+                <label className="form-label">{tr('project.backgroundUrl')}</label>
                 <input className="form-control" placeholder="https://..." value={settings.background_url || ''} onChange={e => setSettings(prev => ({ ...prev, background_url: e.target.value }))} />
               </div>
               <div className="col-md-2 d-flex align-items-end">
-                <button className="btn btn-primary w-100" type="submit">Lưu</button>
+                <button className="btn btn-primary w-100" type="submit">{tr('common.save')}</button>
               </div>
             </form>
           </div>
@@ -634,34 +636,34 @@ export default function ProjectDetail() {
           <div className="col-12">
             <form onSubmit={createList} className="d-flex gap-2 align-items-end mb-2">
               <div style={{ maxWidth: 360, width: '100%' }}>
-                <label className="form-label mb-1">Thêm cột (List)</label>
-                <input className="form-control" placeholder="Tên cột (ví dụ: To Do)" value={newListTitle} onChange={e => setNewListTitle(e.target.value)} />
+                <label className="form-label mb-1">{tr('list.addColumn')}</label>
+                <input className="form-control" placeholder={tr('list.titlePlaceholder')} value={newListTitle} onChange={e => setNewListTitle(e.target.value)} />
               </div>
-              <button className="btn btn-outline-primary" type="submit">Thêm cột</button>
+              <button className="btn btn-outline-primary" type="submit">{tr('list.addButton')}</button>
             </form>
           </div>
           {/* Create task panel */}
           <div className="col-12 col-xl-3">
             <div className="card h-100 shadow-sm card-create-task">
               <div className="card-body">
-                <h5 className="card-title">Thêm Task</h5>
+                <h5 className="card-title">{tr('task.add')}</h5>
                 <form onSubmit={createTask}>
                   <div className="mb-2">
-                    <label className="form-label">Tiêu đề</label>
+                    <label className="form-label">{tr('task.title')}</label>
                     <input className="form-control" value={title} onChange={e => setTitle(e.target.value)} required />
                   </div>
                   <div className="mb-2">
-                    <label className="form-label">Cột (List)</label>
+                    <label className="form-label">{tr('task.list')}</label>
                     <select className="form-select" value={listId} onChange={(e) => setListId(e.target.value)}>
                       <option value="">(Không thuộc cột)</option>
                       {lists.map(l => <option key={l.id} value={l.id}>{l.title}</option>)}
                     </select>
                   </div>
                   <div className="mb-3">
-                    <label className="form-label">Mô tả</label>
+                    <label className="form-label">{tr('task.description')}</label>
                     <textarea className="form-control" rows="3" value={description} onChange={e => setDescription(e.target.value)} />
                   </div>
-                  <button className="btn btn-primary w-100" type="submit">Tạo</button>
+                  <button className="btn btn-primary w-100" type="submit">{tr('task.create')}</button>
                 </form>
               </div>
             </div>
@@ -672,29 +674,30 @@ export default function ProjectDetail() {
             <div className="card h-100 shadow-sm">
               <div className="card-body">
                 <div className="d-flex justify-content-between align-items-center mb-2">
-                  <h6 className="mb-0">Chưa thuộc cột</h6>
+                  <h6 className="mb-0">{tr('section.noColumn')}</h6>
                   <span className="badge text-bg-light">{tasksByList['none']?.length || 0}</span>
                 </div>
                 <div className="vstack gap-2">
                   {(tasksByList['none'] || []).map(t => (
-                    <div key={t.id} className="p-2 border rounded d-flex justify-content-between align-items-center task-item">
+                    <div key={t.id} className="p-2 border rounded task-item">
                       <div className="me-2">
                         {t.priority && (
                           <div className="pms-task-meta">
                             <span className={`pms-priority-badge pms-${t.priority}`}>{priorityText(t.priority)}</span>
                           </div>
                         )}
+                        {/* Actions row under meta */}
+                        <div className="d-flex align-items-center gap-2 task-actions-top mb-1">
+                          <select className="form-select form-select-sm task-select" value={t.list_id || ''}
+                            onChange={(e) => updateTask(t.id, { list_id: e.target.value || null })}>
+                            <option value="">(Không cột)</option>
+                            {lists.map(l => <option key={l.id} value={l.id}>{l.title}</option>)}
+                          </select>
+                          <button className="btn btn-sm btn-outline-danger" onClick={() => deleteTask(t.id)}>{tr('common.delete')}</button>
+                        </div>
                         <div className="fw-semibold text-truncate" style={{maxWidth: '100%'}}>{t.title}</div>
                         {t.description && <div className="text-muted small">{t.description}</div>}
-                        <button className="btn btn-link btn-sm p-0" onClick={() => openTaskDetail(t)}>Bình luận/Tệp</button>
-                      </div>
-                      <div className="d-flex align-items-center gap-2">
-                        <select className="form-select form-select-sm" style={{ width: 140 }} value={t.list_id || ''}
-                          onChange={(e) => updateTask(t.id, { list_id: e.target.value || null })}>
-                          <option value="">(Không cột)</option>
-                          {lists.map(l => <option key={l.id} value={l.id}>{l.title}</option>)}
-                        </select>
-                        <button className="btn btn-sm btn-outline-danger" onClick={() => deleteTask(t.id)}>Xoá</button>
+                        <button className="btn btn-link btn-sm p-0 task-comment-link" onClick={() => openTaskDetail(t)}>{tr('task.commentFiles')}</button>
                       </div>
                     </div>
                   ))}
@@ -714,24 +717,25 @@ export default function ProjectDetail() {
                   </div>
                   <div className="vstack gap-2">
                     {(tasksByList[list.id] || []).map(t => (
-                      <div key={t.id} className="p-2 border rounded d-flex justify-content-between align-items-center task-item">
+                      <div key={t.id} className="p-2 border rounded task-item">
                         <div className="me-2">
                           {t.priority && (
                             <div className="pms-task-meta">
                               <span className={`pms-priority-badge pms-${t.priority}`}>{priorityText(t.priority)}</span>
                             </div>
                           )}
+                          {/* Actions row under meta */}
+                          <div className="d-flex align-items-center gap-2 task-actions-top mb-1">
+                            <select className="form-select form-select-sm task-select" value={t.list_id || ''}
+                              onChange={(e) => updateTask(t.id, { list_id: e.target.value || null })}>
+                              <option value="">(Không cột)</option>
+                              {lists.map(l => <option key={l.id} value={l.id}>{l.title}</option>)}
+                            </select>
+                            <button className="btn btn-sm btn-outline-danger" onClick={() => deleteTask(t.id)}>{tr('common.delete')}</button>
+                          </div>
                           <div className="fw-semibold text-truncate" style={{maxWidth: '100%'}}>{t.title}</div>
                           {t.description && <div className="text-muted small">{t.description}</div>}
-                          <button className="btn btn-link btn-sm p-0" onClick={() => openTaskDetail(t)}>Bình luận/Tệp</button>
-                        </div>
-                        <div className="d-flex align-items-center gap-2">
-                          <select className="form-select form-select-sm" style={{ width: 140 }} value={t.list_id || ''}
-                            onChange={(e) => updateTask(t.id, { list_id: e.target.value || null })}>
-                            <option value="">(Không cột)</option>
-                            {lists.map(l => <option key={l.id} value={l.id}>{l.title}</option>)}
-                          </select>
-                          <button className="btn btn-sm btn-outline-danger" onClick={() => deleteTask(t.id)}>Xoá</button>
+                          <button className="btn btn-link btn-sm p-0 task-comment-link" onClick={() => openTaskDetail(t)}>{tr('task.commentFiles')}</button>
                         </div>
                       </div>
                     ))}
@@ -748,8 +752,8 @@ export default function ProjectDetail() {
         <div className="card mt-3 members-card">
           <div className="card-body">
             <div className="d-flex justify-content-between align-items-center mb-2">
-              <h5 className="card-title mb-0">Thành viên</h5>
-              <button className="btn btn-sm btn-outline-secondary" onClick={loadMembers}>Tải lại</button>
+              <h5 className="card-title mb-0">{tr('members.title')}</h5>
+              <button className="btn btn-sm btn-outline-secondary" onClick={loadMembers}>{tr('project.reload')}</button>
             </div>
 
             <div className="list-group mb-3">
@@ -786,7 +790,7 @@ export default function ProjectDetail() {
             {/* Invite by Email Form */}
             <form className="row g-2 align-items-end invite-section invite-email" onSubmit={inviteByEmailFE}>
               <div className="col-md-5">
-                <label className="form-label">Mời qua email</label>
+                <label className="form-label">{tr('invite.email')}</label>
                 <input 
                   className="form-control" 
                   placeholder="you@example.com" 
@@ -795,7 +799,7 @@ export default function ProjectDetail() {
                 />
               </div>
               <div className="col-md-3">
-                <label className="form-label">Vai trò</label>
+                <label className="form-label">{tr('invite.role')}</label>
                 <select 
                   className="form-select" 
                   value={inviteRole} 
@@ -806,7 +810,7 @@ export default function ProjectDetail() {
                 </select>
               </div>
               <div className="col-md-2">
-                <button className="btn btn-primary w-100" type="submit">Mời</button>
+                <button className="btn btn-primary w-100" type="submit">{tr('invite.button')}</button>
               </div>
               <div className="col-md-2">
                 <button 
@@ -814,7 +818,7 @@ export default function ProjectDetail() {
                   type="button" 
                   onClick={leaveProjectFE}
                 >
-                  Rời nhóm
+                  {tr('invite.leave')}
                 </button>
               </div>
             </form>
@@ -822,16 +826,16 @@ export default function ProjectDetail() {
             {/* Invite by User ID Form */}
             <form className="row g-2 align-items-end mt-3 invite-section invite-id" onSubmit={inviteByUserIdFE}>
               <div className="col-md-5">
-                <label className="form-label">Mời qua User ID</label>
+                <label className="form-label">{tr('invite.byId')}</label>
                 <input 
                   className="form-control" 
-                  placeholder="User ID" 
+                  placeholder={tr('invite.userIdPlaceholder')} 
                   value={inviteUserId} 
                   onChange={(e) => setInviteUserId(e.target.value)} 
                 />
               </div>
               <div className="col-md-3">
-                <label className="form-label">Vai trò</label>
+                <label className="form-label">{tr('invite.role')}</label>
                 <select 
                   className="form-select" 
                   value={inviteRole} 
@@ -842,7 +846,7 @@ export default function ProjectDetail() {
                 </select>
               </div>
               <div className="col-md-2">
-                <button className="btn btn-outline-primary w-100" type="submit">Mời (ID)</button>
+                <button className="btn btn-outline-primary w-100" type="submit">{tr('invite.button')}</button>
               </div>
             </form>
           </div>
@@ -862,7 +866,7 @@ export default function ProjectDetail() {
             <div className="modal-body">
               <div className="row g-4">
                 <div className="col-12 col-md-7">
-                  <h6>Bình luận ({comments.length})</h6>
+                  <h6>{`${tr('comments.title')} (${comments.length})`}</h6>
                   <div className="vstack gap-3 mb-3" style={{ maxHeight: '400px', overflowY: 'auto' }}>
                     {comments.map(c => (
                       <div key={c.id} className="border rounded p-3">
@@ -912,13 +916,13 @@ export default function ProjectDetail() {
                                 className="btn btn-sm btn-primary"
                                 onClick={() => updateComment(c.id)}
                               >
-                                Lưu
+                                {tr('comments.save')}
                               </button>
                               <button 
                                 className="btn btn-sm btn-outline-secondary"
                                 onClick={cancelEditing}
                               >
-                                Hủy
+                                {tr('comments.cancel')}
                               </button>
                             </div>
                           </div>
@@ -930,13 +934,13 @@ export default function ProjectDetail() {
                     {comments.length === 0 && (
                       <div className="text-center py-4 text-muted">
                         <i className="bi bi-chat-dots fs-1"></i>
-                        <p className="mt-2">Chưa có bình luận nào</p>
+                        <p className="mt-2">{tr('comments.empty')}</p>
                       </div>
                     )}
                   </div>
                   <form onSubmit={addComment} className="d-flex gap-2">
-                    <input className="form-control" placeholder="Viết bình luận..." value={newComment} onChange={e => setNewComment(e.target.value)} />
-                    <button className="btn btn-primary" type="submit">Gửi</button>
+                    <input className="form-control" placeholder={tr('comments.writePlaceholder')} value={newComment} onChange={e => setNewComment(e.target.value)} />
+                    <button className="btn btn-primary" type="submit">{tr('comments.send')}</button>
                   </form>
                 </div>
                 <div className="col-12 col-md-5">

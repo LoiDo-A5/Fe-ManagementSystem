@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import api from '../api/client'
 import { useToast } from '../components/ToastProvider.jsx'
+import { useI18n } from '../i18n'
 
 export default function Profile() {
   const { show } = useToast()
+  const { t } = useI18n()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -67,26 +69,26 @@ export default function Profile() {
         <div className="card shadow-sm border-0">
           <div className="card-body">
             <div className="d-flex justify-content-between align-items-center mb-3">
-              <h4 className="mb-0">Cập nhật hồ sơ</h4>
-              <button className="btn btn-outline-secondary" onClick={loadMe} disabled={loading}>{loading ? 'Đang tải...' : 'Tải lại'}</button>
+              <h4 className="mb-0">{t('profile.title')}</h4>
+              <button className="btn btn-outline-secondary" onClick={loadMe} disabled={loading}>{loading ? t('common.loading') : t('profile.reload')}</button>
             </div>
 
             {error && <div className="alert alert-danger">{error}</div>}
 
             <form onSubmit={onSubmit} className="vstack gap-3">
               <div>
-                <label className="form-label">Email</label>
+                <label className="form-label">{t('profile.email')}</label>
                 <input className="form-control" value={email} disabled readOnly />
               </div>
 
               <div>
-                <label className="form-label">Tên hiển thị</label>
-                <input className="form-control" value={name} onChange={(e) => setName(e.target.value)} placeholder="Tên của bạn" />
+                <label className="form-label">{t('profile.displayName')}</label>
+                <input className="form-control" value={name} onChange={(e) => setName(e.target.value)} placeholder={t('profile.displayName')} />
               </div>
 
               <div className="row g-3">
                 <div className="col-md-6">
-                  <label className="form-label">Mật khẩu hiện tại</label>
+                  <label className="form-label">{t('profile.currentPassword')}</label>
                   <div className="input-group">
                     <input
                       type={showCur ? 'text' : 'password'}
@@ -101,7 +103,7 @@ export default function Profile() {
                   </div>
                 </div>
                 <div className="col-md-6">
-                  <label className="form-label">Mật khẩu mới</label>
+                  <label className="form-label">{t('profile.newPassword')}</label>
                   <div className="input-group">
                     <input
                       type={showNew ? 'text' : 'password'}
@@ -116,7 +118,7 @@ export default function Profile() {
                   </div>
                 </div>
                 <div className="col-md-6">
-                  <label className="form-label">Xác nhận mật khẩu mới</label>
+                  <label className="form-label">{t('profile.confirmPassword')}</label>
                   <div className="input-group">
                     <input
                       type={showConf ? 'text' : 'password'}
@@ -133,7 +135,7 @@ export default function Profile() {
               </div>
 
               <div className="d-flex justify-content-end">
-                <button type="submit" className="btn btn-primary" disabled={saving}>{saving ? 'Đang lưu...' : 'Lưu thay đổi'}</button>
+                <button type="submit" className="btn btn-primary" disabled={saving}>{saving ? t('common.loading') : t('profile.save')}</button>
               </div>
             </form>
           </div>

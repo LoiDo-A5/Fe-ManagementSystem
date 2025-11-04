@@ -8,6 +8,7 @@ import { getToken } from './api/client.js'
 import Header from './components/Header.jsx'
 import Footer from './components/Footer.jsx'
 import ToastProvider from './components/ToastProvider.jsx'
+import { I18nProvider } from './i18n.js'
 
 function ProtectedRoute({ children }) {
   const token = getToken()
@@ -23,6 +24,7 @@ function ProtectedRoute({ children }) {
   const isAuthPage = location.pathname.startsWith('/login')
   return (
     <ToastProvider>
+      <I18nProvider>
       <div className="app-shell">
         {!isAuthPage && <Header />}
 
@@ -39,6 +41,7 @@ function ProtectedRoute({ children }) {
 
         {!isAuthPage && <Footer />}
       </div>
+      </I18nProvider>
     </ToastProvider>
   )
  }
