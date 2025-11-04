@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState, useRef } from 'react'
 import { useParams } from 'react-router-dom'
-import api from '../api/client'
+import api, { getCurrentUser } from '../api/client'
 import { useToast } from '../components/ToastProvider.jsx'
 
 export default function ProjectDetail() {
@@ -24,6 +24,48 @@ export default function ProjectDetail() {
   const [comments, setComments] = useState([])
   const [newComment, setNewComment] = useState('')
   const [attachments, setAttachments] = useState([])
+  const [assignees, setAssignees] = useState([])
+  const modalRef = useRef(null)
+  const modalInstance = useRef(null)
+
+  // Fallback modal helpers (no Bootstrap JS)
+  function showModalFallback() {
+    const el = document.getElementById('taskModal')
+    if (!el) return
+    try {
+      el.classList.add('show')
+      el.style.display = 'block'
+      el.removeAttribute('aria-hidden')
+      el.setAttribute('aria-modal', 'true')
+      document.body.classList.add('modal-open')
+      // add backdrop
+      if (!document.getElementById('taskModalBackdrop')) {
+        const backdrop = document.createElement('div')
+        backdrop.className = 'modal-backdrop fade show'
+        backdrop.id = 'taskModalBackdrop'
+        document.body.appendChild(backdrop)
+      }
+      // wire close button for fallback
+      const closeBtn = el.querySelector('[data-bs-dismiss="modal"]')
+      if (closeBtn) {
+        closeBtn.addEventListener('click', hideModalFallback, { once: true })
+      }
+    } catch {}
+  }
+
+  function hideModalFallback() {
+    const el = document.getElementById('taskModal')
+    if (!el) return
+    try {
+      el.classList.remove('show')
+      el.style.display = ''
+      el.setAttribute('aria-hidden', 'true')
+      el.removeAttribute('aria-modal')
+      document.body.classList.remove('modal-open')
+      const bd = document.getElementById('taskModalBackdrop')
+      if (bd) bd.remove()
+    } catch {}
+  }
 
   // Members management
   const [members, setMembers] = useState([])
@@ -34,9 +76,6 @@ export default function ProjectDetail() {
   // Project settings & labels
   const [settings, setSettings] = useState({ color: '', background_url: '', archived_at: null })
   const [labels, setLabels] = useState([])
-
-  // Assignees for active task
-  const [assignees, setAssignees] = useState([])
 
   // Create List (column)
   const [newListTitle, setNewListTitle] = useState('')
@@ -228,27 +267,138 @@ export default function ProjectDetail() {
   }
 
   // --- Comments ---
-  async function openTaskDetail(task) {
-    setActiveTask(task)
-    try {
-      const [cRes, aRes, asgRes] = await Promise.all([
-        api.get(`/api/tasks/${task.id}/comments`),
-        api.get(`/api/tasks/${task.id}/attachments`),
-        api.get(`/api/tasks/${task.id}/assignees`).catch(() => ({ data: [] })),
-      ])
-      setComments(cRes.data)
-      setAttachments(aRes.data)
-      setAssignees(asgRes.data)
-    } catch (err) {
-      setComments([])
-      setAttachments([])
-      setAssignees([])
-      show('Không tải được chi tiết task')
+  const [editingComment, setEditingComment] = useState(null)
+  const [editCommentContent, setEditCommentContent] = useState('')
+
+  // Initialize modal on component mount (ESM dynamic import)
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const modalElement = document.getElementById('taskModal')
+    let disposed = false
+    async function init() {
+      if (!modalElement) return
+      try {
+        const mod = await import('bootstrap/js/dist/modal.js')
+        const ModalClass = mod.default || mod.Modal
+        if (ModalClass && !disposed) {
+          modalInstance.current = new ModalClass(modalElement, {
+            backdrop: 'static',
+            keyboard: true,
+          })
+        }
+      } catch (e) {
+        console.error('Failed to load Bootstrap Modal module:', e)
+        // Minimal fallback: show modal without Bootstrap
+        showModalFallback()
+      }
     }
-    const modal = document.getElementById('taskModal')
-    if (modal) {
-      const bs = window.bootstrap?.Modal ? new window.bootstrap.Modal(modal) : null
-      bs?.show()
+    init()
+    // Cleanup on unmount
+    return () => {
+      disposed = true
+      if (modalInstance.current) {
+        try { modalInstance.current.dispose() } catch {}
+        modalInstance.current = null
+      }
+    }
+  }, [])
+
+  async function openTaskDetail(task) {
+    try {
+      if (!task || !task.id) {
+        throw new Error('Invalid task object or missing task ID')
+      }
+      
+      console.log('Opening task detail for task ID:', task.id)
+      setActiveTask(task)
+      setEditingComment(null)
+      setEditCommentContent('')
+      
+      try {
+        // Load task details in parallel with better error handling
+        const [cRes, aRes, asgRes] = await Promise.all([
+          api.get(`/api/tasks/${task.id}/comments`).catch(err => {
+            console.error('Error loading comments:', err)
+            return { data: [] }
+          }),
+          api.get(`/api/tasks/${task.id}/attachments`).catch(err => {
+            console.error('Error loading attachments:', err)
+            return { data: [] }
+          }),
+          api.get(`/api/tasks/${task.id}/assignees`).catch(err => {
+            console.error('Error loading assignees:', err)
+            return { data: [] }
+          }),
+        ])
+        
+        // Normalize responses: backend may return an array or an object { success, data }
+        const commentsArr = Array.isArray(cRes?.data)
+          ? cRes.data
+          : (Array.isArray(cRes?.data?.data) ? cRes.data.data : [])
+        const attachmentsArr = Array.isArray(aRes?.data)
+          ? aRes.data
+          : (Array.isArray(aRes?.data?.data) ? aRes.data.data : [])
+        const assigneesArr = Array.isArray(asgRes?.data)
+          ? asgRes.data
+          : (Array.isArray(asgRes?.data?.data) ? asgRes.data.data : [])
+
+        console.log('Task details loaded:', {
+          comments: commentsArr.length,
+          attachments: attachmentsArr.length,
+          assignees: assigneesArr.length,
+        })
+
+        setComments(commentsArr)
+        setAttachments(attachmentsArr)
+        setAssignees(assigneesArr)
+        
+        // Show the modal (lazily initialize if needed via ESM import)
+        if (!modalInstance.current) {
+          const el = document.getElementById('taskModal')
+          if (!el) {
+            console.error('Task modal element not found in DOM')
+            throw new Error('Task modal element not found')
+          }
+          try {
+            const mod = await import('bootstrap/js/dist/modal.js')
+            const ModalClass = mod.default || mod.Modal
+            if (!ModalClass) throw new Error('Modal class not found in module')
+            modalInstance.current = new ModalClass(el, { backdrop: 'static', keyboard: true })
+          } catch (e) {
+            console.error('Failed to initialize Bootstrap Modal (ESM):', e)
+            // Fallback to CSS-based modal show
+            showModalFallback()
+          }
+        }
+
+        // Show after ensuring instance exists (or fallback already visible)
+        if (modalInstance.current) {
+          try { modalInstance.current.show() } catch (e) {
+            console.error('Failed to show modal:', e)
+            showModalFallback()
+          }
+        }
+        
+      } catch (apiError) {
+        console.error('API error in openTaskDetail:', apiError)
+        throw apiError
+      }
+
+      } catch (err) {
+      console.error('Error in openTaskDetail:', {
+        error: err,
+        message: err.message,
+        taskId: task?.id,
+        stack: err.stack
+      })
+      
+      // More specific error messages based on error type
+      const errorMessage = err.response?.data?.error || 
+                         (err.message.includes('Network Error') 
+                           ? 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng.'
+                           : 'Không tải được chi tiết task. Vui lòng thải lại sau.')
+      
+      show(errorMessage, 'error')
     }
   }
 
@@ -304,9 +454,35 @@ export default function ProjectDetail() {
       const { data } = await api.post(`/api/tasks/${activeTask.id}/comments`, { content: newComment.trim() })
       setComments(prev => [...prev, data])
       setNewComment('')
+      show('Đã thêm bình luận', 'success')
     } catch (err) {
-      alert('Không thêm được bình luận')
+      show(err.response?.data?.error || 'Không thêm được bình luận', 'error')
     }
+  }
+
+  async function updateComment(commentId) {
+    if (!editCommentContent.trim()) return
+    try {
+      const { data } = await api.put(`/api/comments/${commentId}`, { 
+        content: editCommentContent.trim() 
+      })
+      setComments(prev => prev.map(c => c.id === commentId ? data : c))
+      setEditingComment(null)
+      setEditCommentContent('')
+      show('Đã cập nhật bình luận', 'success')
+    } catch (err) {
+      show(err.response?.data?.error || 'Không cập nhật được bình luận', 'error')
+    }
+  }
+
+  function startEditing(comment) {
+    setEditingComment(comment.id)
+    setEditCommentContent(comment.content)
+  }
+
+  function cancelEditing() {
+    setEditingComment(null)
+    setEditCommentContent('')
   }
 
   async function deleteComment(id) {
@@ -314,8 +490,9 @@ export default function ProjectDetail() {
     try {
       await api.delete(`/api/comments/${id}`)
       setComments(prev => prev.filter(c => c.id !== id))
+      show('Đã xóa bình luận', 'success')
     } catch (err) {
-      show('Không xoá được bình luận')
+      show(err.response?.data?.error || 'Không xoá được bình luận', 'error')
     }
   }
 
@@ -630,18 +807,83 @@ export default function ProjectDetail() {
             <div className="modal-body">
               <div className="row g-4">
                 <div className="col-12 col-md-7">
-                  <h6>Bình luận</h6>
-                  <div className="vstack gap-2 mb-3">
+                  <h6>Bình luận ({comments.length})</h6>
+                  <div className="vstack gap-3 mb-3" style={{ maxHeight: '400px', overflowY: 'auto' }}>
                     {comments.map(c => (
-                      <div key={c.id} className="p-2 border rounded d-flex justify-content-between">
-                        <div>
-                          <div className="small text-muted">{c.user ? `${c.user.name} • ${new Date(c.created_at).toLocaleString()}` : new Date(c.created_at).toLocaleString()}</div>
-                          <div>{c.content}</div>
+                      <div key={c.id} className="border rounded p-3">
+                        <div className="d-flex justify-content-between align-items-start mb-2">
+                          <div className="d-flex align-items-center gap-2">
+                            <div className="avatar-sm d-flex align-items-center justify-content-center rounded-circle bg-primary text-white fw-bold">
+                              {c.user?.name ? c.user.name.charAt(0).toUpperCase() : 'U'}
+                            </div>
+                            <div>
+                              <div className="fw-semibold">{c.user?.name || 'Người dùng'}</div>
+                              <div className="text-muted small">
+                                {new Date(c.updated_at).toLocaleString('vi-VN', {
+                                  day: '2-digit',
+                                  month: '2-digit',
+                                  year: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                                {c.created_at !== c.updated_at && ' (đã chỉnh sửa)'}
+                              </div>
+                            </div>
+                          </div>
+                          {c.user_id === getCurrentUser()?.id && (
+                            <div className="btn-group btn-group-sm">
+                              <button 
+                                type="button" 
+                                className="btn btn-outline-secondary"
+                                onClick={() => startEditing(c)}
+                              >
+                                <i className="bi bi-pencil"></i>
+                              </button>
+                              <button 
+                                type="button" 
+                                className="btn btn-outline-danger"
+                                onClick={() => deleteComment(c.id)}
+                              >
+                                <i className="bi bi-trash"></i>
+                              </button>
+                            </div>
+                          )}
                         </div>
-                        <button className="btn btn-sm btn-outline-danger" onClick={() => deleteComment(c.id)}>Xoá</button>
+                        
+                        {editingComment === c.id ? (
+                          <div className="mt-2">
+                            <textarea
+                              className="form-control mb-2"
+                              value={editCommentContent}
+                              onChange={(e) => setEditCommentContent(e.target.value)}
+                              rows="3"
+                            />
+                            <div className="d-flex gap-2">
+                              <button 
+                                className="btn btn-sm btn-primary"
+                                onClick={() => updateComment(c.id)}
+                              >
+                                Lưu
+                              </button>
+                              <button 
+                                className="btn btn-sm btn-outline-secondary"
+                                onClick={cancelEditing}
+                              >
+                                Hủy
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="mt-2">{c.content}</div>
+                        )}
                       </div>
                     ))}
-                    {comments.length === 0 && <div className="text-muted">Chưa có bình luận.</div>}
+                    {comments.length === 0 && (
+                      <div className="text-center py-4 text-muted">
+                        <i className="bi bi-chat-dots fs-1"></i>
+                        <p className="mt-2">Chưa có bình luận nào</p>
+                      </div>
+                    )}
                   </div>
                   <form onSubmit={addComment} className="d-flex gap-2">
                     <input className="form-control" placeholder="Viết bình luận..." value={newComment} onChange={e => setNewComment(e.target.value)} />
