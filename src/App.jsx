@@ -6,6 +6,7 @@ import ProjectDetail from './pages/ProjectDetail.jsx'
 import { getToken } from './api/client.js'
 import Header from './components/Header.jsx'
 import Footer from './components/Footer.jsx'
+import ToastProvider from './components/ToastProvider.jsx'
 
 function ProtectedRoute({ children }) {
   const token = getToken()
@@ -20,20 +21,22 @@ function ProtectedRoute({ children }) {
   const location = useLocation()
   const isAuthPage = location.pathname.startsWith('/login')
   return (
-    <div>
-      {!isAuthPage && <Header />}
+    <ToastProvider>
+      <div>
+        {!isAuthPage && <Header />}
 
-      <div className="container py-4">
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
-          <Route path="/projects/:id" element={<ProtectedRoute><ProjectDetail /></ProtectedRoute>} />
-          <Route path="/" element={<Navigate to="/projects" replace />} />
-          <Route path="*" element={<div>Not found</div>} />
-        </Routes>
+        <div className="container py-4">
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
+            <Route path="/projects/:id" element={<ProtectedRoute><ProjectDetail /></ProtectedRoute>} />
+            <Route path="/" element={<Navigate to="/projects" replace />} />
+            <Route path="*" element={<div>Not found</div>} />
+          </Routes>
+        </div>
+
+        {!isAuthPage && <Footer />}
       </div>
-
-      {!isAuthPage && <Footer />}
-    </div>
+    </ToastProvider>
   )
  }
