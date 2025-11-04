@@ -64,7 +64,6 @@ export default function Login() {
                   <input className="form-check-input" type="checkbox" id="remember" />
                   <label className="form-check-label" htmlFor="remember">Ghi nhớ tôi</label>
                 </div>
-                <button type="button" className="btn btn-link btn-sm text-decoration-none">Quên mật khẩu?</button>
               </div>
 
               <button className="btn btn-primary btn-lg w-100" type="submit">{isRegister ? 'Tạo tài khoản' : 'Đăng nhập'}</button>

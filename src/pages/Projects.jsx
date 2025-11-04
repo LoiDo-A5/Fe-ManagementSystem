@@ -65,7 +65,7 @@ export default function Projects() {
 
       <div className="row g-4">
         <div className="col-12 col-lg-4">
-          <div className="card shadow-sm border-0 h-100">
+          <div className="card shadow-sm border-0 h-100 create-project-card">
             <div className="card-body">
               <h5 className="card-title">Tạo Project</h5>
               <div className="text-muted small mb-3">Đặt tên rõ ràng để cả team dễ hiểu</div>
