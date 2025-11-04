@@ -75,6 +75,22 @@ export default function ProjectDetail() {
 
   useEffect(() => { load() }, [projectId])
 
+  function listCardClass(title) {
+    const t = (title || '').toLowerCase()
+    if (t.includes('progress')) return 'card-inprogress'
+    if (t.includes('done') || t.includes('hoàn thành')) return 'card-done'
+    if (t.includes('todo') || t.includes('to do')) return 'card-todo'
+    return 'card-none'
+  }
+
+  function initialsFrom(name, email) {
+    const src = (name || email || '').trim()
+    if (!src) return '?'
+    const parts = src.split(/\s+/)
+    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase()
+    return src.slice(0, 2).toUpperCase()
+  }
+
   // --- Lists (Columns) ---
   async function seedDefaultLists() {
     try {
@@ -404,7 +420,7 @@ export default function ProjectDetail() {
           </div>
           {/* Create task panel */}
           <div className="col-12 col-xl-3">
-            <div className="card h-100 shadow-sm">
+            <div className="card h-100 shadow-sm card-create-task">
               <div className="card-body">
                 <h5 className="card-title">Thêm Task</h5>
                 <form onSubmit={createTask}>
@@ -439,7 +455,7 @@ export default function ProjectDetail() {
                 </div>
                 <div className="vstack gap-2">
                   {(tasksByList['none'] || []).map(t => (
-                    <div key={t.id} className="p-2 border rounded d-flex justify-content-between align-items-center">
+                    <div key={t.id} className="p-2 border rounded d-flex justify-content-between align-items-center task-item">
                       <div className="me-2">
                         <div className="fw-semibold">{t.title}</div>
                         {t.description && <div className="text-muted small">{t.description}</div>}
@@ -463,7 +479,7 @@ export default function ProjectDetail() {
           {/* Each list column */}
           {lists.map(list => (
             <div className="col-12 col-xl-3" key={list.id}>
-              <div className="card h-100 shadow-sm">
+              <div className={`card h-100 shadow-sm ${listCardClass(list.title)}`}>
                 <div className="card-body">
                   <div className="d-flex justify-content-between align-items-center mb-2">
                     <h6 className="mb-0">{list.title}</h6>
@@ -471,7 +487,7 @@ export default function ProjectDetail() {
                   </div>
                   <div className="vstack gap-2">
                     {(tasksByList[list.id] || []).map(t => (
-                      <div key={t.id} className="p-2 border rounded d-flex justify-content-between align-items-center">
+                      <div key={t.id} className="p-2 border rounded d-flex justify-content-between align-items-center task-item">
                         <div className="me-2">
                           <div className="fw-semibold">{t.title}</div>
                           {t.description && <div className="text-muted small">{t.description}</div>}
@@ -497,7 +513,7 @@ export default function ProjectDetail() {
 
       {/* Members Panel */}
       <div className="col-12">
-        <div className="card mt-3">
+        <div className="card mt-3 members-card">
           <div className="card-body">
             <div className="d-flex justify-content-between align-items-center mb-2">
               <h5 className="card-title mb-0">Thành viên</h5>
@@ -505,34 +521,54 @@ export default function ProjectDetail() {
             </div>
 
             <div className="list-group mb-3">
-              {members.map(m => (
-                <div key={m.user_id} className="list-group-item d-flex justify-content-between align-items-center">
-                  <div>
-                    <div className="fw-semibold">{m.user?.name || m.user_id} <span className="text-muted small">({m.user?.email})</span></div>
-                    <div className="small text-muted">Vai trò: {m.role}</div>
+              {members.map(m => {
+                const roleClass = m.role === 'owner' ? 'role-owner' : m.role === 'admin' ? 'role-admin' : 'role-member'
+                const rowClass = m.role === 'owner' ? 'member-row-owner' : m.role === 'admin' ? 'member-row-admin' : 'member-row-member'
+                return (
+                  <div key={m.user_id} className={`list-group-item d-flex justify-content-between align-items-center member-item ${rowClass}`}>
+                    <div className="d-flex align-items-center gap-3">
+                      <span className="member-avatar">{initialsFrom(m.user?.name, m.user?.email)}</span>
+                      <div>
+                        <div className="member-name">
+                          {m.user?.name || m.user_id}
+                          <span className={`ms-2 role-badge ${roleClass}`}>{m.role}</span>
+                        </div>
+                        <div className="member-email small">{m.user?.email}</div>
+                      </div>
+                    </div>
+                    <div className="d-flex gap-2">
+                      <select className="form-select form-select-sm" style={{ width: 160 }} value={m.role}
+                        onChange={(e) => changeRoleFE(m.user_id, e.target.value)}>
+                        <option value="owner">owner</option>
+                        <option value="admin">admin</option>
+                        <option value="member">member</option>
+                      </select>
+                      <button className="btn btn-sm btn-outline-danger" onClick={() => removeMemberFE(m.user_id)}>Xoá</button>
+                    </div>
                   </div>
-                  <div className="d-flex gap-2">
-                    <select className="form-select form-select-sm" style={{ width: 140 }} value={m.role}
-                      onChange={(e) => changeRoleFE(m.user_id, e.target.value)}>
-                      <option value="owner">owner</option>
-                      <option value="admin">admin</option>
-                      <option value="member">member</option>
-                    </select>
-                    <button className="btn btn-sm btn-outline-danger" onClick={() => removeMemberFE(m.user_id)}>Xoá</button>
-                  </div>
-                </div>
-              ))}
+                )
+              })}
               {members.length === 0 && <div className="text-muted p-2">Chưa có thành viên.</div>}
             </div>
 
-            <form className="row g-2 align-items-end" onSubmit={inviteByEmailFE}>
+            {/* Invite by Email Form */}
+            <form className="row g-2 align-items-end invite-section invite-email" onSubmit={inviteByEmailFE}>
               <div className="col-md-5">
                 <label className="form-label">Mời qua email</label>
-                <input className="form-control" placeholder="you@example.com" value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} />
+                <input 
+                  className="form-control" 
+                  placeholder="you@example.com" 
+                  value={inviteEmail} 
+                  onChange={(e) => setInviteEmail(e.target.value)} 
+                />
               </div>
               <div className="col-md-3">
                 <label className="form-label">Vai trò</label>
-                <select className="form-select" value={inviteRole} onChange={(e) => setInviteRole(e.target.value)}>
+                <select 
+                  className="form-select" 
+                  value={inviteRole} 
+                  onChange={(e) => setInviteRole(e.target.value)}
+                >
                   <option value="member">member</option>
                   <option value="admin">admin</option>
                 </select>
@@ -541,18 +577,34 @@ export default function ProjectDetail() {
                 <button className="btn btn-primary w-100" type="submit">Mời</button>
               </div>
               <div className="col-md-2">
-                <button className="btn btn-outline-danger w-100" type="button" onClick={leaveProjectFE}>Rời nhóm</button>
+                <button 
+                  className="btn btn-outline-danger w-100" 
+                  type="button" 
+                  onClick={leaveProjectFE}
+                >
+                  Rời nhóm
+                </button>
               </div>
             </form>
 
-            <form className="row g-2 align-items-end mt-2" onSubmit={inviteByUserIdFE}>
+            {/* Invite by User ID Form */}
+            <form className="row g-2 align-items-end mt-3 invite-section invite-id" onSubmit={inviteByUserIdFE}>
               <div className="col-md-5">
                 <label className="form-label">Mời qua User ID</label>
-                <input className="form-control" placeholder="User ID" value={inviteUserId} onChange={(e) => setInviteUserId(e.target.value)} />
+                <input 
+                  className="form-control" 
+                  placeholder="User ID" 
+                  value={inviteUserId} 
+                  onChange={(e) => setInviteUserId(e.target.value)} 
+                />
               </div>
               <div className="col-md-3">
                 <label className="form-label">Vai trò</label>
-                <select className="form-select" value={inviteRole} onChange={(e) => setInviteRole(e.target.value)}>
+                <select 
+                  className="form-select" 
+                  value={inviteRole} 
+                  onChange={(e) => setInviteRole(e.target.value)}
+                >
                   <option value="member">member</option>
                   <option value="admin">admin</option>
                 </select>

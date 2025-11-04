@@ -6,9 +6,184 @@
   --primary: #3b82f6;
   --danger: #ef4444;
   --border: #1f2937;
-  --accent-1: #7c3aed; /* purple */
+  --accent-1: #7c3aed; /* Custom styles */
+
+/* Kanban column card themes */
+.card-create-task {
+  background: #eef6ff;
+  border-color: #bcdcff;
+}
+.card-create-task .card-title {
+  color: #0b5ed7;
+}
+
+.card-none {
+  background: #f8f9fa;
+  border-color: #dee2e6;
+}
+.card-none .card-title, .card-none h6 {
+  color: #6c757d;
+}
+
+.card-todo {
+  background: #fff7e6;
+  border-color: #ffd591;
+}
+.card-todo .card-title, .card-todo h6 {
+  color: #d48806;
+}
+
+.card-inprogress {
+  background: #e6f7ff;
+  border-color: #91d5ff;
+}
+.card-inprogress .card-title, .card-inprogress h6 {
+  color: #096dd9;
+}
+
+.card-done {
+  background: #f6ffed;
+  border-color: #b7eb8f;
+}
+.card-done .card-title, .card-done h6 {
+  color: #237804;
+}
+
+/* Task item styling for better contrast */
+.task-item {
+  background: #ffffffaa;
+}
+
+/* ---------- Header & Footer ---------- */
+.app-header {
+  background: linear-gradient(135deg, rgba(79,70,229,0.92), rgba(14,165,233,0.88));
+  backdrop-filter: saturate(120%) blur(8px);
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+}
+
+.app-footer {
+  background: linear-gradient(135deg, rgba(79,70,229,0.92), rgba(14,165,233,0.88));
+  backdrop-filter: saturate(120%) blur(8px);
+  border-top: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.9);
+  font-size: 0.9rem;
+  padding: 1.5rem 0;
+  margin-top: 2rem;
+}
+
+.app-footer .text-muted {
+  color: rgba(255,255,255,0.8) !important;
+}
+
+.footer-link {
+  color: rgba(255,255,255,0.8);
+  text-decoration: none;
+  transition: all 0.2s;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.footer-link:hover {
+  color: white;
+  background: rgba(255,255,255,0.1);
+  text-decoration: none;
+}
+
+.brand-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.3);
+}
+
+.app-footer .fw-bold {
+  color: white;
+  font-weight: 600;
+}
+
+/* Members component */
+.members-card {
+  border-color: #e5e7eb;
+  background: linear-gradient(180deg, #fafafa, #ffffff);
+}
+.member-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+.member-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: #0f172a;
+  background: #e2e8f0;
+}
+.member-name {
+  font-weight: 600;
+}
+.member-email {
+  color: #6b7280;
+}
+.member-item:hover {
+  background: #f8fafc;
+}
+
+/* Per-role row background tints */
+.member-row-owner {
+  background: #fff7e6; /* warm yellow tint */
+  border-left: 4px solid #d48806;
+}
+.member-row-admin {
+  background: #e6f7ff; /* blue tint */
+  border-left: 4px solid #096dd9;
+}
+.member-row-member {
+  background: #f6ffed; /* green tint */
+  border-left: 4px solid #237804;
+}
+.role-badge {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+.role-owner { background: #fde68a; color: #92400e; }
+.role-admin { background: #bfdbfe; color: #1e3a8a; }
+.role-member { background: #dcfce7; color: #065f46; }
+
   --accent-2: #06b6d4; /* cyan */
   --accent-3: #22c55e; /* green */
+}
+
+/* Invite (Mời) sections inside Members */
+.invite-section {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px;
+}
+.invite-section + .invite-section {
+  margin-top: 12px;
+}
+.invite-email {
+  background: #eff6ff;           /* light blue */
+  border-color: #bfdbfe;
+}
+.invite-id {
+  background: #ecfeff;           /* light cyan */
+  border-color: #a5f3fc;
+}
+.invite-section .form-label {
+  font-weight: 600;
+}
+.invite-section .btn {
+  box-shadow: none;
 }
 * { box-sizing: border-box; }
 html, body, #root { height: 100%; }
@@ -222,18 +397,3 @@ body {
   --bs-btn-hover-bg: rgba(255,255,255,.15);
   --bs-btn-hover-border-color: rgba(255,255,255,.75);
 }
-
-/* ---------- Footer ---------- */
-.app-footer {
-  background: linear-gradient(180deg, #ffffff, #f0f9ff);
-  border-top: 1px solid rgba(15,23,42,.08);
-  color: #334155;
- }
- .app-footer .footer-link {
-  color: #475569;
-  text-decoration: none;
- }
- .app-footer .footer-link:hover {
-  color: #0ea5e9;
-  text-decoration: underline;
- }
