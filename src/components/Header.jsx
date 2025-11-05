@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { NavLink, Link, useNavigate } from 'react-router-dom'
 import api, { getToken, getCurrentUser, logout } from '../api/client'
 import { useI18n } from '../i18n'
+import { useNotifications } from './NotificationsContext.jsx'
 
 export default function Header() {
   const navigate = useNavigate()
@@ -10,6 +11,9 @@ export default function Header() {
   const [open, setOpen] = useState(false)
   const menuRef = useRef(null)
   const { lang, setLang, t } = useI18n()
+  const { notifications, unread, markAllRead, clear } = useNotifications()
+  const [openNoti, setOpenNoti] = useState(false)
+  const notiRef = useRef(null)
 
   function handleLogout() {
     logout()
@@ -35,6 +39,8 @@ export default function Header() {
     function onDocClick(e) {
       if (!menuRef.current) return
       if (!menuRef.current.contains(e.target)) setOpen(false)
+      if (!notiRef.current) return
+      if (!notiRef.current.contains(e.target)) setOpenNoti(false)
     }
     document.addEventListener('click', onDocClick)
     return () => document.removeEventListener('click', onDocClick)
@@ -71,6 +77,43 @@ export default function Header() {
             <div className="btn-group" role="group" aria-label="Language selector">
               <button type="button" className={`btn btn-sm ${lang === 'vi' ? 'btn-light' : 'btn-outline-light'}`} onClick={() => setLang('vi')}>VI</button>
               <button type="button" className={`btn btn-sm ${lang === 'en' ? 'btn-light' : 'btn-outline-light'}`} onClick={() => setLang('en')}>EN</button>
+            </div>
+
+            {/* Notifications bell */}
+            <div className="position-relative" ref={notiRef}>
+              <button
+                className="btn btn-outline-light btn-sm position-relative"
+                type="button"
+                onClick={() => setOpenNoti(v => !v)}
+                aria-label="Notifications"
+              >
+                <i className="bi bi-bell"></i>
+                {unread > 0 && (
+                  <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                    {unread}
+                  </span>
+                )}
+              </button>
+              <div className={`dropdown-menu dropdown-menu-end p-2 ${openNoti ? 'show' : ''}`} style={{ minWidth: 320, right: 0, left: 'auto' }}>
+                <div className="d-flex justify-content-between align-items-center px-2 py-1">
+                  <strong>Thông báo</strong>
+                  <div className="btn-group btn-group-sm">
+                    <button className="btn btn-outline-secondary" onClick={markAllRead}>Đã đọc</button>
+                    <button className="btn btn-outline-danger" onClick={clear}>Xóa</button>
+                  </div>
+                </div>
+                <div className="dropdown-divider"></div>
+                <div className="vstack gap-2" style={{ maxHeight: 320, overflowY: 'auto' }}>
+                  {notifications.length === 0 ? (
+                    <div className="text-muted small px-2 py-1">Không có thông báo</div>
+                  ) : notifications.slice(0, 10).map(n => (
+                    <div key={n.id} className={`p-2 rounded ${n.read ? 'bg-light' : 'bg-white border'}`}>
+                      <div className="small">{n.text}</div>
+                      <div className="text-muted small">{new Date(n.ts || Date.now()).toLocaleString()}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
 
             {token ? (

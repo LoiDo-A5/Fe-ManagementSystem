@@ -9,6 +9,8 @@ import Header from './components/Header.jsx'
 import Footer from './components/Footer.jsx'
 import ToastProvider from './components/ToastProvider.jsx'
 import { I18nProvider } from './i18n.js'
+import SocketClient from './components/SocketClient.jsx'
+import { NotificationsProvider } from './components/NotificationsContext.jsx'
 
 function ProtectedRoute({ children }) {
   const token = getToken()
@@ -25,8 +27,10 @@ function ProtectedRoute({ children }) {
   return (
     <ToastProvider>
       <I18nProvider>
+      <NotificationsProvider>
       <div className="app-shell">
         {!isAuthPage && <Header />}
+        <SocketClient />
 
         <div className="container py-4">
           <Routes>
@@ -41,6 +45,7 @@ function ProtectedRoute({ children }) {
 
         {!isAuthPage && <Footer />}
       </div>
+      </NotificationsProvider>
       </I18nProvider>
     </ToastProvider>
   )
