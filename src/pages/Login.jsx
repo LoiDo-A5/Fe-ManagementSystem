@@ -31,7 +31,7 @@ export default function Login() {
   }
 
   return (
-    <div className="auth-layout d-flex align-items-center justify-content-center">
+    <div className="auth-layout d-flex align-items-center justify-content-center w-100 min-vh-100">
       <div className="auth-card shadow-lg rounded-4 overflow-hidden">
         <div className="row g-0">
           <div className="col-md-6 p-4 p-md-5 order-2 order-md-1 bg-white">

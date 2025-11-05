@@ -326,8 +326,16 @@ body {
 
 /* ---------- Auth (Login/Register) ---------- */
 .auth-layout {
-  min-height: calc(100vh - 0px);
+  min-height: 100vh;
+  width: 100%;
   padding: 32px 16px;
+  /* Background image for Login/Register */
+  background-image:
+    linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.25)),
+    url('./images/background.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .auth-card {

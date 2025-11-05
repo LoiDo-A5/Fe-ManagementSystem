@@ -32,7 +32,7 @@ function ProtectedRoute({ children }) {
         {!isAuthPage && <Header />}
         <SocketClient />
 
-        <div className="container py-4">
+        {isAuthPage ? (
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
@@ -41,7 +41,18 @@ function ProtectedRoute({ children }) {
             <Route path="/" element={<Navigate to="/projects" replace />} />
             <Route path="*" element={<div>Not found</div>} />
           </Routes>
-        </div>
+        ) : (
+          <div className="container py-4">
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
+              <Route path="/projects/:id" element={<ProtectedRoute><ProjectDetail /></ProtectedRoute>} />
+              <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+              <Route path="/" element={<Navigate to="/projects" replace />} />
+              <Route path="*" element={<div>Not found</div>} />
+            </Routes>
+          </div>
+        )}
 
         {!isAuthPage && <Footer />}
       </div>
